@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class FileServiceImplementation implements IFileService{
@@ -44,5 +45,30 @@ public class FileServiceImplementation implements IFileService{
         fileRepository.save(fileEntity);
 
         return "file uploaded successfully";
+    }
+
+    @Override
+    public List<FileEntity> getAllFiles(String email) {
+        return fileRepository.findByUploadedBy(email);
+    }
+
+    @Override
+    public String deleteFileById(Integer id, String email) {
+
+        FileEntity fileEntity = fileRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("file not found"));
+
+        if(!fileEntity.getUploadedBy().equals(email))
+        {
+            throw new RuntimeException("not authorized to delete file");
+        }
+        File file = new File(fileEntity.getFilePath());
+        if(file.exists())
+            file.delete();
+
+        fileRepository.delete(fileEntity);
+
+        return "file deleted successfully";
+
     }
 }

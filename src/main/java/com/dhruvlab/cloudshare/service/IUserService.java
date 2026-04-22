@@ -8,4 +8,5 @@ public interface IUserService {
     String registerUser(RegisterRequestDto registerRequestDto);
 
     String loginUser(LoginRequestDto dto);
+
 }
