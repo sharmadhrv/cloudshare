@@ -3,6 +3,8 @@ package com.dhruvlab.cloudshare.service;
 import com.dhruvlab.cloudshare.entity.FileEntity;
 import com.dhruvlab.cloudshare.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,6 +71,18 @@ public class FileServiceImplementation implements IFileService{
         fileRepository.delete(fileEntity);
 
         return "file deleted successfully";
-
     }
+
+    @Override
+    public Resource downloadFile(Integer id, String email) throws Exception
+    {
+        FileEntity fileEntity = fileRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("File not found"));
+        if(!fileEntity.getUploadedBy().equals(email))
+            throw new RuntimeException("unaothorized user");
+
+        File file = new File(fileEntity.getFilePath());
+        return new UrlResource(file.toURI());
+    }
+
 }
